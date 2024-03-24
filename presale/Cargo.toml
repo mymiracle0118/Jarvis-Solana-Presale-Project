@@ -1,5 +1,5 @@
 [package]
-name = "fundssotre"
+name = "presale"
 version = "0.1.0"
 description = "Created with Anchor"
 repository = "https://github.com/smartcontractkit/solana-example"
@@ -7,7 +7,7 @@ edition = "2018"
 
 [lib]
 crate-type = ["cdylib", "lib"]
-name = "fundssotre"
+name = "presale"
 
 [features]
 no-entrypoint = []

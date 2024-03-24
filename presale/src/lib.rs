@@ -5,19 +5,50 @@ use anchor_spl::token::{self, Token, TokenAccount, Transfer};
 declare_id!("rafrZNbxGdfFUBzddkzgtcHLqijmjarEihYcUuCuByV");
 
 #[program]
-pub mod fundssotre{
+pub mod presale{
 
     use super::*;
 
-    pub fn init_store(
-        ctx : Context<InitStore>,
+    pub fn init_pool(
+        ctx : Context<InitPool>,
+        min_sol: u64,
+        max_sol: u64,
+        hardcap: u64,
+        softcap: u64,
         _bump : u8
         ) -> ProgramResult {
-        let store = &mut ctx.accounts.store;
-        store.owner = ctx.accounts.owner.key();
-        store.rand = ctx.accounts.rand.key();
-        store.bump = _bump;
+        msg!("+++++ Init Pool +++++");
+        let pool = &mut ctx.accounts.pool;
+        pool.owner = ctx.accounts.owner.key();
+        pool.rand = ctx.accounts.rand.key();
+        pool.withrawer = ctx.accounts.withrawer.key();
+        pool.min_sol = min_sol;
+        pool.max_sol = max_sol;
+        pool.hardcap = hardcap;
+        pool.softcap = softcap;
+        pool.raised = 0;
+        pool.withdraw_amount = 0;
+        pool.pause = false;
+        pool.bump = _bump;
         
+        Ok(())
+    }
+
+    pub fn init_contribute_info(
+        ctx : Context<InitContributeInfo>,
+        _bump : u8
+        ) -> ProgramResult {
+        msg!("+++++ Init Contribute Info +++++");
+
+        let contribute_data = &mut ctx.accounts.data;
+        let clock = Clock::from_account_info(&ctx.accounts.clock)?;
+
+        contribute_data.pool = ctx.accounts.pool.key();
+        contribute_data.contributer = ctx.accounts.owner.key();
+        contribute_data.contribute_start = clock.unix_timestamp as u64;
+        contribute_data.contribute_last = clock.unix_timestamp as u64;
+        contribute_data.amount = 0;
+
         Ok(())
     }
 
@@ -25,43 +56,112 @@ pub mod fundssotre{
         ctx : Context<TransferAuthority>,
         _new_owner : Pubkey,
         )->ProgramResult{
-        let store = &mut ctx.accounts.store;
-        store.owner = _new_owner;
+        msg!("+++++ Transfer Authority +++++");
+        let pool = &mut ctx.accounts.pool;
+        pool.owner = _new_owner;
+        Ok(())
+    }
+
+    pub fn set_withdrawer(
+        ctx : Context<SetWithdrawer>,
+        _new_withdrawer : Pubkey,
+        )->ProgramResult{
+        msg!("+++++ Set Withdrawer +++++");
+        let pool = &mut ctx.accounts.pool;
+        pool.withrawer = _new_withdrawer;
+        Ok(())
+    }
+
+    pub fn set_pause(
+        ctx : Context<ModifyPool>,
+        _pause : bool
+        ) -> ProgramResult {
+        msg!("+++++ Set Minsol +++++");
+        let pool = &mut ctx.accounts.pool;
+        pool.pause = _pause;
+        Ok(())
+    }
+
+    pub fn set_minsol(
+        ctx : Context<ModifyPool>,
+        _minsol : u64
+        ) -> ProgramResult {
+        msg!("+++++ Set Minsol +++++");
+        let pool = &mut ctx.accounts.pool;
+        pool.min_sol = _minsol;
+        Ok(())
+    }
+
+    pub fn set_maxsol(
+        ctx : Context<ModifyPool>,
+        _maxsol : u64
+        ) -> ProgramResult {
+        msg!("+++++ Set Maxsol +++++");
+        let pool = &mut ctx.accounts.pool;
+        pool.max_sol = _maxsol;
+        Ok(())
+    }
+
+    pub fn set_softcap(
+        ctx : Context<ModifyPool>,
+        _softcap : u64
+        ) -> ProgramResult {
+        msg!("+++++ Set Softcap +++++");
+        let pool = &mut ctx.accounts.pool;
+        pool.softcap = _softcap;
+        Ok(())
+    }
+
+    pub fn set_hardcap(
+        ctx : Context<ModifyPool>,
+        _hardcap : u64
+        ) -> ProgramResult {
+        msg!("+++++ Set Hardcap +++++");
+        let pool = &mut ctx.accounts.pool;
+        pool.hardcap = _hardcap;
         Ok(())
     }
 
     pub fn deposit_sol(
         ctx : Context<DepositSol>,
         _amount : u64
-        ) -> ProgramResult {
+        ) -> ProgramResult {    
+        msg!("+++++ Deposit Sol +++++");
+
+        let pool = &mut ctx.accounts.pool;
+        let contribute_info = &mut ctx.accounts.contribute_info;
+        let clock = Clock::from_account_info(&ctx.accounts.clock)?;
+
+        if _amount < pool.min_sol {
+            msg!("Insufficent funds");
+            return Err(PoolError::InsufficentFunds.into());
+        }
+
+        if _amount + contribute_info.amount > pool.max_sol {
+            msg!("Overflow Contribute Amount");
+            return Err(PoolError::OverflowContibute.into());
+        }
+
+        if _amount + pool.raised > pool.hardcap {
+            msg!("Hardcap has reached");
+            return Err(PoolError::HardcapReached.into());
+        }
+
+        if pool.pause == true {
+            msg!("Presale is Pause State");
+            return Err(PoolError::InPauseState.into());
+        }
 
         sol_transfer_to_pool(
             SolTransferToPoolParams{
                 source : ctx.accounts.owner.to_account_info().clone(),
-                destination : ctx.accounts.store.clone(),
+                destination : ctx.accounts.pool.clone(),
                 system : ctx.accounts.system_program.to_account_info().clone(),
                 amount : _amount
             }
         )?;
 
-        Ok(())
-    }
-
-    pub fn deposit_token(
-        ctx : Context<DepositToken>,
-        _amount : u64
-        ) -> ProgramResult {
-
-        let cpi_ctx = CpiContext::new(
-            ctx.accounts.token_program.to_account_info().clone(),
-            Transfer{
-                from : ctx.accounts.token_from.to_account_info().clone(),
-                to : ctx.accounts.token_to.to_account_info().clone(),
-                authority : ctx.accounts.owner.to_account_info().clone()    
-            }
-        );
-
-        token::transfer(cpi_ctx, _amount as u64)?;
+        contribute_info.contribute_last = clock.unix_timestamp as u64;
 
         Ok(())
     }
@@ -70,48 +170,33 @@ pub mod fundssotre{
         ctx : Context<ClaimSol>,
         _amount : u64
     ) -> ProgramResult {
+        msg!("+++++ Claim Sol +++++");
+
+        let pool = &mut ctx.accounts.pool;
+
+        if _amount > pool.raised - pool.withdraw_amount {
+            msg!("Insufficent funds");
+            return Err(PoolError::InsufficentFunds.into());
+        }
 
         sol_transfer(
-            &mut ctx.accounts.store_address,
-            &mut ctx.accounts.reciever,
+            &mut ctx.accounts.pool_address,
+            &mut ctx.accounts.owner,
             _amount
         )?;
 
-        Ok(())
-    }
-
-    pub fn claim_token(
-        ctx : Context<ClaimToken>,
-        _amount : u64
-    ) -> ProgramResult {
-
-        let store = &mut ctx.accounts.store;
-
-        let store_seeds = &[store.rand.as_ref(),&[store.bump]];
-
-        let signer = &[&store_seeds[..]];
-
-        let cpi_ctx = CpiContext::new_with_signer(
-            ctx.accounts.token_program.to_account_info().clone(),
-            Transfer{
-                from : ctx.accounts.token_from.to_account_info().clone(),
-                to : ctx.accounts.token_to.to_account_info().clone(),
-                authority : store.to_account_info().clone(),
-            },
-            signer
-        );
-
-        token::transfer(cpi_ctx, _amount)?;
+        pool.withdraw_amount += _amount;
 
         Ok(())
     }
+
 }
 
 struct SolTransferToPoolParams<'a> {
     /// CHECK:
     pub source: AccountInfo<'a>,
     /// CHECK:
-    pub destination: ProgramAccount<'a, DataStore>,
+    pub destination: ProgramAccount<'a, Pool>,
     /// CHECK:
     pub system: AccountInfo<'a>,
     /// CHECK:
@@ -160,9 +245,16 @@ pub struct DepositSol<'info>{
     owner : Signer<'info>,
 
     #[account(mut)]
-    store : ProgramAccount<'info, DataStore>,
+    pool : ProgramAccount<'info, Pool>,
 
-    system_program : Program<'info, System>,
+    #[account(mut,
+        constraint= contribute_info.pool == pool.key()
+            && contribute_info.contributer == owner.key())]
+    contribute_info : ProgramAccount<'info, ContributeInfo>,
+
+    clock : AccountInfo<'info>,
+
+    system_program : Program<'info, System>
 }
 
 #[derive(Accounts)]
@@ -172,53 +264,15 @@ pub struct ClaimSol<'info> {
     owner : AccountInfo<'info>,   
 
     /// CHECK:
-    #[account(mut)]
-    reciever : AccountInfo<'info>, 
-
-    /// CHECK:
-    #[account(mut, has_one=owner)]
-    store : ProgramAccount<'info,DataStore>,
+    #[account(mut,
+        constraint= pool.withrawer == owner.key())]
+    pool : ProgramAccount<'info, Pool>,
 
     /// CHECK:
     #[account(mut)]
-    store_address : AccountInfo<'info>
-}
+    pool_address : AccountInfo<'info>,
 
-#[derive(Accounts)]
-pub struct DepositToken<'info>{
-    #[account(mut)]
-    owner : Signer<'info>,
-
-    #[account(mut)]
-    store : ProgramAccount<'info, DataStore>,
-
-    #[account(mut, constraint= token_from.owner==owner.key())]
-    token_from : Account<'info, TokenAccount>,
-
-    #[account(mut, constraint= token_to.owner==store.key())]
-    token_to : Account<'info, TokenAccount>,
-
-    token_program : Program<'info, Token>,
-}
-
-#[derive(Accounts)]
-pub struct ClaimToken<'info>{
-    #[account(mut, signer)]
-    owner : AccountInfo<'info>,
-
-    #[account(mut)]
-    reciever : AccountInfo<'info>, 
-
-    #[account(mut, has_one=owner)]
-    store : ProgramAccount<'info, DataStore>,
-
-    #[account(mut, constraint= token_from.owner==store.key())]
-    token_from : Account<'info, TokenAccount>,
-
-    #[account(mut, constraint= token_to.owner==reciever.key())]
-    token_to : Account<'info, TokenAccount>,
-
-    token_program : Program<'info, Token>,
+    system_program : Program<'info, System>
 }
 
 #[derive(Accounts)]
@@ -227,40 +281,107 @@ pub struct TransferAuthority<'info>{
     owner : Signer<'info>,
     
     #[account(mut,has_one=owner)]
-    store : ProgramAccount<'info, DataStore>,
+    pool : ProgramAccount<'info, Pool>,
+}
+
+#[derive(Accounts)]
+pub struct SetWithdrawer<'info>{
+    #[account(mut)]
+    owner : Signer<'info>,
+    
+    #[account(mut,has_one=owner)]
+    pool : ProgramAccount<'info, Pool>,
 }
 
 #[derive(Accounts)]
 #[instruction(_bump : u8)]
-pub struct InitStore<'info>{
+pub struct InitPool<'info>{
     #[account(mut)]
     owner : Signer<'info>,
     
-    #[account(init, seeds=[(*rand.key).as_ref()], bump=_bump, payer=owner, space=8+STORE_POOL_SIZE)]
-    store : ProgramAccount<'info, DataStore>,
+    #[account(init, seeds=[(*rand.key).as_ref()], bump=_bump, payer=owner, space= 8 + DATA_POOL_SIZE)]
+    pool : ProgramAccount<'info, Pool>,
     
+    withrawer: AccountInfo<'info>,
+
     rand : AccountInfo<'info>,
     
     system_program : Program<'info, System>
 }
 
-pub const STORE_POOL_SIZE : usize = 32*2+1;
+#[derive(Accounts)]
+#[instruction(_bump : u8)]
+pub struct InitContributeInfo<'info>{
+    #[account(mut, signer)]
+    owner : AccountInfo<'info>,
+
+    pool : ProgramAccount<'info, Pool>,
+
+    #[account(init,
+        seeds=[owner.key().as_ref(), pool.key().as_ref()],
+        bump=_bump,
+        payer=owner,
+        space= 8 + CONTRIBUTE_INFO_SIZE)]
+    data : ProgramAccount<'info, ContributeInfo>,
+
+    clock : AccountInfo<'info>,
+
+    system_program : Program<'info, System>
+}
+
+#[derive(Accounts)]
+pub struct ModifyPool<'info>{
+    #[account(mut)]
+    owner : Signer<'info>,
+
+    #[account(mut, has_one=owner)]
+    pool : ProgramAccount<'info, Pool>,
+}
+
+pub const DATA_POOL_SIZE : usize = 32 * 3 + 32 * 6 + 1 + 1;
+pub const CONTRIBUTE_INFO_SIZE : usize = 32 * 2 + 32 * 4;
 
 #[account]
-pub struct DataStore{
+pub struct Pool {
     owner : Pubkey,
     rand : Pubkey,
+    withrawer: Pubkey,
+    min_sol: u64,
+    max_sol: u64,
+    hardcap: u64,
+    softcap: u64,
+    raised: u64,
+    withdraw_amount: u64,
+    pause: bool,
     bump : u8,
 }
 
+#[account]
+pub struct ContributeInfo {
+    pool: Pubkey,
+    contributer : Pubkey,
+    contribute_start: u64,
+    contribute_last: u64,
+    amount: u64,
+}
+
 #[error]
-pub enum PoolError{
+pub enum PoolError {
 
     #[msg("Invalid owner")]
     InvalidPoolOwner,
 
     #[msg("Insufficent Funds")]
     InsufficentFunds,
+
+    #[msg("Overflow Contribute Amount")]
+    OverflowContibute,
+
+    #[msg("Hardcap Reached")]
+    HardcapReached,
+
+    #[msg("Presale is in Pause State")]
+    InPauseState,
 
     #[msg("sol transfer failed")]
     SolTransferFailed
