@@ -23,7 +23,7 @@ import fs from 'fs'
 import * as anchor from '@project-serum/anchor'
 import {AccountLayout,MintLayout,TOKEN_PROGRAM_ID,Token,ASSOCIATED_TOKEN_PROGRAM_ID} from "@solana/spl-token";
 import { program } from 'commander';
-import { programs } from '@metaplex/js';
+// import { programs } from '@metaplex/js';
 import log from 'loglevel';
 import axios from "axios"
 import { publicKey } from "@project-serum/anchor/dist/cjs/utils";
@@ -36,7 +36,7 @@ const programId = new PublicKey('presniX9hhdaCKFXD6fkmEs5cNuL6GWmtjAz6u87NMz')
 const TOKEN_METADATA_PROGRAM_ID = new anchor.web3.PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s")
 const pool_address = new PublicKey('9C6LsMVXabiPNVG4gJQVYV1Rg76Wd6jDZpekVvC9ti4J')
 const idl=JSON.parse(fs.readFileSync('../contract1/target/idl/presale.json','utf8'))
-const { metadata: { Metadata } } = programs
+// const { metadata: { Metadata } } = programs
 
 const confirmOption : ConfirmOptions = {
     commitment : 'finalized',
@@ -60,69 +60,6 @@ function loadWalletKey(keypair : any): Keypair {
   return loaded;
 }
 
-const getTokenWallet = async (
-  wallet: anchor.web3.PublicKey,
-  mint: anchor.web3.PublicKey
-    ) => {
-  return (
-    await anchor.web3.PublicKey.findProgramAddress(
-      [wallet.toBuffer(), TOKEN_PROGRAM_ID.toBuffer(), mint.toBuffer()],
-      ASSOCIATED_TOKEN_PROGRAM_ID
-    )
-  )[0];
-}
-
-const getMetadata = async (
-  mint: anchor.web3.PublicKey
-    ): Promise<anchor.web3.PublicKey> => {
-  return (
-    await anchor.web3.PublicKey.findProgramAddress(
-      [
-        Buffer.from("metadata"),
-        TOKEN_METADATA_PROGRAM_ID.toBuffer(),
-        mint.toBuffer(),
-      ],
-      TOKEN_METADATA_PROGRAM_ID
-    )
-  )[0];
-};
-
-const createAssociatedTokenAccountInstruction = (
-  associatedTokenAddress: PublicKey,
-  payer: PublicKey,
-  walletAddress: PublicKey,
-  splTokenMintAddress: PublicKey
-    ) => {
-  const keys = [
-    { pubkey: payer, isSigner: true, isWritable: true },
-    { pubkey: associatedTokenAddress, isSigner: false, isWritable: true },
-    { pubkey: walletAddress, isSigner: false, isWritable: false },
-    { pubkey: splTokenMintAddress, isSigner: false, isWritable: false },
-    {
-      pubkey: SystemProgram.programId,
-      isSigner: false,
-      isWritable: false,
-    },
-    { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
-    {
-      pubkey: SYSVAR_RENT_PUBKEY,
-      isSigner: false,
-      isWritable: false,
-    },
-  ];
-  return new TransactionInstruction({
-    keys,
-    programId: ASSOCIATED_TOKEN_PROGRAM_ID,
-    data: Buffer.from([]),
-  });
-}
-
-async function getDecimalsOfToken(conn : Connection, mint : PublicKey){
-  let resp = await conn.getAccountInfo(mint)
-  let accountData = MintLayout.decode(Buffer.from(resp!.data))
-  return accountData.decimals
-}
-
 programCommand('init_pool')
   .requiredOption(
     '-k, --keypair <path>',
@@ -141,21 +78,16 @@ programCommand('init_pool')
     let transaction = new Transaction()
     transaction.add(program.instruction.initPool(
       new anchor.BN(bump),
-      new anchor.BN(infoJson.staking_period),
-      new anchor.BN(infoJson.withdraw_period),
-      new anchor.BN(infoJson.start_time),
-      new anchor.BN(infoJson.soul_amount),
-      new anchor.BN(infoJson.win_percent),
-      new anchor.BN(infoJson.fail_percent),
-      new anchor.BN(infoJson.burn_percent),
-      new anchor.BN(infoJson.token_unit),
+      new anchor.BN(0),
+      new anchor.BN(10000000000),
+      new anchor.BN(10000000000),
+      new anchor.BN(0),
       {
         accounts:{
           owner : owner.publicKey,
           pool : pool,
+          withdrawer : owner.publicKey,
           rand : rand,
-          withdrawer : tokenMint,
-          tokenProgram : TOKEN_PROGRAM_ID,
           systemProgram : SystemProgram.programId
         }
       }
