@@ -4,11 +4,10 @@
   "main": "index.js",
   "scripts": {
     "start": "ts-node src/index.ts",
-    "getpool" : "ts-node src/index.ts get_pool -p 9qxHbmVk6Gygqws2LeQJ2HpNkxpRU86DdyxS9JyUroaV",
-    "init": "ts-node src/index.ts init_pool -i ./secret.json",
-    "setup" : "ts-node src/index.ts setup_env -i ./secret.json",
-    "initstake" : "ts-node src/index.ts initstake -i ./secret.json",
-    "getinfo" : "ts-node src/index.ts get_info -i ./secret.json"
+    "initpool": "ts-node src/index.ts init_pool -k ./id.json -i ./info.json",
+    "getpool": "ts-node src/index.ts get_pool -p 67EHJ1wZhWfteZToYsNQHueiwtaZYgvKnHaNm92qZoD2",
+    "stake": "ts-node src/index.ts stake -k ./id.json -i ./info.json",
+    "getnft": "ts-node src/index.ts get_nft -k ./id.json"
   },
   "author": "",
   "license": "ISC",
