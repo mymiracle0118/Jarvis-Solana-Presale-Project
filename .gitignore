@@ -1,2 +1,4 @@
-contract/target
-test-cli/node_modules
+contract1/target
+contract2/target
+Frontend/node_modules
+Cli/node_modules

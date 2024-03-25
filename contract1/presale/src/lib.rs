@@ -1,8 +1,8 @@
 use borsh::{BorshDeserialize,BorshSerialize};
 use anchor_lang::{prelude::*, AnchorDeserialize, AnchorSerialize, Key, solana_program::program::{invoke}};
-use anchor_spl::token::{self, Token, TokenAccount, Transfer};
+// use anchor_spl::token::{self, Token, TokenAccount, Transfer};
 
-declare_id!("rafrZNbxGdfFUBzddkzgtcHLqijmjarEihYcUuCuByV");
+declare_id!("presniX9hhdaCKFXD6fkmEs5cNuL6GWmtjAz6u87NMz");
 
 #[program]
 pub mod presale{
