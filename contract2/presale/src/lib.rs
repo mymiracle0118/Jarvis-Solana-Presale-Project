@@ -11,17 +11,17 @@ pub mod presale{
 
     pub fn init_pool(
         ctx : Context<InitPool>,
+        _bump : u8,
         min_sol: u64,
         max_sol: u64,
         hardcap: u64,
-        softcap: u64,
-        _bump : u8
+        softcap: u64
         ) -> ProgramResult {
         msg!("+++++ Init Pool +++++");
         let pool = &mut ctx.accounts.pool;
         pool.owner = ctx.accounts.owner.key();
         pool.rand = ctx.accounts.rand.key();
-        pool.withrawer = ctx.accounts.withrawer.key();
+        pool.withdrawer = ctx.accounts.withdrawer.key();
         pool.min_sol = min_sol;
         pool.max_sol = max_sol;
         pool.hardcap = hardcap;
@@ -68,7 +68,7 @@ pub mod presale{
         )->ProgramResult{
         msg!("+++++ Set Withdrawer +++++");
         let pool = &mut ctx.accounts.pool;
-        pool.withrawer = _new_withdrawer;
+        pool.withdrawer = _new_withdrawer;
         Ok(())
     }
 
@@ -306,7 +306,7 @@ pub struct ClaimSol<'info> {
 
     /// CHECK:
     #[account(mut,
-        constraint= pool.withrawer == owner.key())]
+        constraint= pool.withdrawer == owner.key())]
     pool : ProgramAccount<'info, Pool>,
 
     /// CHECK:
@@ -359,7 +359,7 @@ pub struct InitPool<'info>{
     #[account(init, seeds=[(*rand.key).as_ref()], bump=_bump, payer=owner, space= 8 + DATA_POOL_SIZE)]
     pool : ProgramAccount<'info, Pool>,
     
-    withrawer: AccountInfo<'info>,
+    withdrawer: AccountInfo<'info>,
 
     rand : AccountInfo<'info>,
     
@@ -401,7 +401,7 @@ pub const CONTRIBUTE_INFO_SIZE : usize = 32 * 2 + 1 + 32 * 4;
 pub struct Pool {
     owner : Pubkey,
     rand : Pubkey,
-    withrawer: Pubkey,
+    withdrawer: Pubkey,
     min_sol: u64,
     max_sol: u64,
     hardcap: u64,
