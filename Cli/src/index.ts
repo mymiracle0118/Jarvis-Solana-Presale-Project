@@ -34,7 +34,7 @@ log.setLevel('info');
 // const programId = new PublicKey('AirdfxxqajyegRGW1RpY5JfPyYiZ2Z9WYAZxmhKzxoKo')
 const programId = new PublicKey('presniX9hhdaCKFXD6fkmEs5cNuL6GWmtjAz6u87NMz')
 const TOKEN_METADATA_PROGRAM_ID = new anchor.web3.PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s")
-const pool_address = new PublicKey('9C6LsMVXabiPNVG4gJQVYV1Rg76Wd6jDZpekVvC9ti4J')
+const pool_address = new PublicKey('BsRHBE5SKCaai8bJzGqmt7Xs8nkj6rNECRim8LUdBzkN')
 const idl=JSON.parse(fs.readFileSync('../contract1/target/idl/presale.json','utf8'))
 // const { metadata: { Metadata } } = programs
 
@@ -79,8 +79,8 @@ programCommand('init_pool')
     transaction.add(program.instruction.initPool(
       new anchor.BN(bump),
       new anchor.BN(0),
-      new anchor.BN(10000000000),
-      new anchor.BN(10000000000),
+      new anchor.BN(100000),
+      new anchor.BN(100000),
       new anchor.BN(0),
       {
         accounts:{
@@ -100,47 +100,30 @@ programCommand('init_pool')
     }
   })
 
-// programCommand('get_pool')
-//   .option(
-//     '-p, --pool <string>',
-//     'pool address'
-//   )
-//   .action(async (directory,cmd)=>{
-//     const {env, pool} = cmd.opts()
-//     const conn = new Connection(clusterApiUrl(env))
-//     const poolAddress = new PublicKey(pool)
-//     const wallet = new anchor.Wallet(Keypair.generate())
-//     const provider = new anchor.Provider(conn,wallet,confirmOption)
-//     const program = new anchor.Program(idl,programId,provider)
-//     const poolData = await program.account.pool.fetch(poolAddress)
-//     // const resp = await conn.getTokenAccountBalance(poolData.souls_mint, "max")
-//     // const amount = resp.value.uiAmountString
-//     // const decimals = Math.pow(10,resp.value.decimals)
-//     console.log("test");
-//     console.log("        Pool Data");
-//     console.log("Owner : " + poolData.owner.toBase58())
-//     console.log("Token : " + poolData.soulsMint.toBase58())
-//     console.log("total souls : " + poolData.totalSouls.toNumber())
-//     console.log("staking period : " + poolData.stakingPeriod.toNumber() + " day")
-//     console.log("withdraw period : " + poolData.withdrawPeriod.toNumber() + " day")
-//     console.log("halos count", poolData.halosCount.toNumber());
-//     console.log("horns_count", poolData.hornsCount.toNumber());
-//     console.log("soul amount", poolData.soulAmount.toNumber());
-//     console.log("start time", poolData.startTime.toNumber());
-//     console.log("token unit", poolData.tokenUnit.toNumber());
-//     console.log("stake collection", poolData.stakeCollection);
-//     console.log("token halos", poolData.tokenHalos);
-//     console.log("token horns", poolData.tokenHorns);
-//     console.log("win percent", poolData.winPercent.toNumber());
-//     console.log("fail percent", poolData.failPercent.toNumber());
-//     console.log("burn percent", poolData.burnPercent.toNumber());
-//     console.log("period", poolData.period.toNumber());
-//     console.log("when                   amount");
-//     // (poolData.schedule as any[]).map((item) => {
-//     //   console.log((new Date(item!.airdropTime*1000)).toLocaleString(),"      ",item!.airdropAmount/decimals)
-//     // })
-//     console.log("")
-//   })
+programCommand('get_pool')
+  .action(async (directory,cmd)=>{
+    const {env, pool} = cmd.opts()
+    const conn = new Connection(clusterApiUrl(env))
+    const poolAddress = new PublicKey(pool_address)
+    const wallet = new anchor.Wallet(Keypair.generate())
+    const provider = new anchor.Provider(conn,wallet,confirmOption)
+    const program = new anchor.Program(idl,programId,provider)
+    const poolData = await program.account.pool.fetch(poolAddress)
+    console.log(poolData);
+    console.log("============ Pool Data ===========");
+    console.log("Owner : " + poolData.owner.toBase58())
+    console.log("Rand : " + poolData.rand.toBase58())
+    console.log("Withdrawer : " + poolData.withdrawer.toBase58())
+    console.log("Minsol : " + poolData.minSol.toNumber())
+    console.log("Maxsol : " + poolData.maxSol.toNumber())
+    console.log("Hardcap", poolData.hardcap.toNumber());
+    console.log("Softcap", poolData.softcap.toNumber());
+    console.log("Raised", poolData.raised.toNumber());
+    console.log("Withdraw Amount", poolData.withdrawAmount.toNumber());
+    console.log("Pause", poolData.pause);
+    console.log("Bump", poolData.bump);
+    console.log("")
+  })
 
 //   programCommand('get_nft')
 //   .option(

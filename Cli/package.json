@@ -5,7 +5,7 @@
   "scripts": {
     "start": "ts-node src/index.ts",
     "initpool": "ts-node src/index.ts init_pool -k ./id.json",
-    "getpool": "ts-node src/index.ts get_pool -p 67EHJ1wZhWfteZToYsNQHueiwtaZYgvKnHaNm92qZoD2",
+    "getpool": "ts-node src/index.ts get_pool",
     "stake": "ts-node src/index.ts stake -k ./id.json -i ./info.json",
     "getnft": "ts-node src/index.ts get_nft -k ./id.json"
   },

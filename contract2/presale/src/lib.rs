@@ -12,20 +12,20 @@ pub mod presale{
     pub fn init_pool(
         ctx : Context<InitPool>,
         _bump : u8,
-        min_sol: u64,
-        max_sol: u64,
-        hardcap: u64,
-        softcap: u64
+        _min_sol: u64,
+        _max_sol: u64,
+        _softcap: u64,
+        _hardcap: u64
         ) -> ProgramResult {
         msg!("+++++ Init Pool +++++");
         let pool = &mut ctx.accounts.pool;
         pool.owner = ctx.accounts.owner.key();
         pool.rand = ctx.accounts.rand.key();
         pool.withdrawer = ctx.accounts.withdrawer.key();
-        pool.min_sol = min_sol;
-        pool.max_sol = max_sol;
-        pool.hardcap = hardcap;
-        pool.softcap = softcap;
+        pool.min_sol = _min_sol;
+        pool.max_sol = _max_sol;
+        pool.softcap = _softcap;
+        pool.hardcap = _hardcap;
         pool.raised = 0;
         pool.withdraw_amount = 0;
         pool.pause = false;
@@ -404,8 +404,8 @@ pub struct Pool {
     withdrawer: Pubkey,
     min_sol: u64,
     max_sol: u64,
-    hardcap: u64,
     softcap: u64,
+    hardcap: u64,
     raised: u64,
     withdraw_amount: u64,
     pause: bool,
