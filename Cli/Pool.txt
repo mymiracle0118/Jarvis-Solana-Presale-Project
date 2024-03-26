@@ -1,7 +1,0 @@
-Program Id
-Hq6uN7rEysDbBQDSte5JXLwuhKX8NJ3MsDAwvhdJhgkv
-
-Pool Address
-2UjuHk7Uivztct77zQPqK3PHPBy9Kbx1AyJKpKjqFFVK
-
-wallet public key: 9mcW8SCxHKr1rCQ3ZSYuEwUF2foNUnUsTQerrRKQhEda
