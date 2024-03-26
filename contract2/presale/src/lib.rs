@@ -188,6 +188,9 @@ pub mod presale{
             return Err(PoolError::InPauseState.into());
         }
 
+        whitelist_info.amount += _amount;
+        pool.raised += _amount;
+
         sol_transfer_to_pool(
             SolTransferToPoolParams{
                 source : ctx.accounts.owner.to_account_info().clone(),
@@ -203,7 +206,6 @@ pub mod presale{
             whitelist_info.contribute_last = clock.unix_timestamp as u64;
         }
         
-
         Ok(())
     }
 

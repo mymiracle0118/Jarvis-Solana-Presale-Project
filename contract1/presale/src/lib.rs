@@ -152,6 +152,10 @@ pub mod presale{
             return Err(PoolError::InPauseState.into());
         }
 
+        contribute_info.contribute_last = clock.unix_timestamp as u64;
+        contribute_info.amount += _amount;
+        pool.raised += _amount;
+
         sol_transfer_to_pool(
             SolTransferToPoolParams{
                 source : ctx.accounts.owner.to_account_info().clone(),
@@ -160,8 +164,6 @@ pub mod presale{
                 amount : _amount
             }
         )?;
-
-        contribute_info.contribute_last = clock.unix_timestamp as u64;
 
         Ok(())
     }
