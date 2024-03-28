@@ -159,13 +159,8 @@ pub mod presale{
         let clock = Clock::from_account_info(&ctx.accounts.clock)?;
 
         if whitelist_info.whitelist == false {
-            msg!("Insufficent funds");
+            msg!("Not WhiteList Member");
             return Err(PoolError::NotWhitelistMember.into());
-        }
-
-        if _amount < pool.min_sol {
-            msg!("Insufficent funds");
-            return Err(PoolError::InsufficentFunds.into());
         }
 
         if _amount < pool.min_sol {
@@ -426,7 +421,6 @@ pub struct WhitelistInfo {
 
 #[error]
 pub enum PoolError {
-
     #[msg("Invalid owner")]
     InvalidPoolOwner,
 

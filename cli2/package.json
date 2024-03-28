@@ -1,0 +1,48 @@
+{
+  "name": "javascript",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "ts-node src/index.ts",
+    "initpool": "ts-node src/index.ts init_pool -k ./id.json",
+    "getpool": "ts-node src/index.ts get_pool",
+    "initwhitelistinfo": "ts-node src/index.ts init_whitelist_info -k ./id.json",
+    "getwhitelistinfo": "ts-node src/index.ts get_whitelist_info -k ./id.json",
+    "setwithdrawer": "ts-node src/index.ts set_withdrawer -k ./id.json",
+    "setpause": "ts-node src/index.ts set_pause -k ./id.json",
+    "setminsol": "ts-node src/index.ts set_minsol -k ./id.json",
+    "setmaxsol": "ts-node src/index.ts set_maxsol -k ./id.json",
+    "setsoftcap": "ts-node src/index.ts set_softcap -k ./id.json",
+    "sethardcap": "ts-node src/index.ts set_hardcap -k ./id.json",
+    "deposit": "ts-node src/index.ts deposit -k ./id.json",
+    "transferauth": "ts-node src/index.ts set_transfer_authority -k ./id.json",
+    "addwhitelist": "ts-node src/index.ts add_whitelist -k ./id.json",
+    "remove_whitelist": "ts-node src/index.ts remove_whitelist -k ./id.json",
+    "claim": "ts-node src/index.ts claim -k ./id.json"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@metaplex/js": "^0.0.1",
+    "@project-serum/anchor": "^0.17.1-beta.1",
+    "@solana/spl-token": "^0.1.8",
+    "@solana/web3.js": "^1.29.2",
+    "assert": "^2.0.0",
+    "axios": "^1.6.8",
+    "bip32": "^3.0.1",
+    "bs58": "^4.0.1",
+    "commander": "^8.3.0",
+    "figlet": "^1.5.2",
+    "fs": "^0.0.1-security",
+    "log4js": "^6.3.0",
+    "loglevel": "^1.8.0",
+    "moment": "^2.29.1",
+    "path": "^0.12.7",
+    "ts-node": "^10.5.0",
+    "typescript": "^4.4.4"
+  },
+  "devDependencies": {
+    "@types/bs58": "^4.0.1"
+  },
+  "description": ""
+}

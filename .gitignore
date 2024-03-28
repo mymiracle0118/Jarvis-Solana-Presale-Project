@@ -2,8 +2,12 @@
 # contract2/target
 contract1/target/bpfel-unknown-unknown
 contract1/target/release
+contract1/target/debug
 contract2/target/bpfel-unknown-unknown
 contract2/target/release
+contract2/target/debug
 Frontend/node_modules
-Cli/node_modules
-Cli/id.json
+cli1/node_modules
+cli1/id.json
+cli2/node_modules
+cli2/id.json
