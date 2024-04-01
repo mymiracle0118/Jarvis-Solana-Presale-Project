@@ -8,6 +8,6 @@ contract2/target/release
 contract2/target/debug
 Frontend/node_modules
 cli1/node_modules
-cli1/id.json
+# cli1/id.json
 cli2/node_modules
-cli2/id.json
+# cli2/id.json

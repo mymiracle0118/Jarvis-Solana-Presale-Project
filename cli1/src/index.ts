@@ -420,7 +420,7 @@ programCommand('set_hardcap')
 
   let transaction = new Transaction()
   transaction.add(program.instruction.setHardcap(
-    new anchor.BN(400000000),
+    new anchor.BN(1000000000),
     {
       accounts:{
         owner : owner.publicKey,
