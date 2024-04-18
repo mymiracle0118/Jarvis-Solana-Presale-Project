@@ -3,6 +3,10 @@
 npm install
 ```
 
+# Requirement
+anchor v0.17.0
+solana v1.14.18
+
 # Test  Cli1
 ```
 npm run initpool

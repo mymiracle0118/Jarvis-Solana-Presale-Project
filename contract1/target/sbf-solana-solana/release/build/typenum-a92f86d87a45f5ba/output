@@ -1,0 +1,2 @@
+cargo:rustc-env=TYPENUM_BUILD_CONSTS=/home/solana/Jarvis-Solana-Presale-Project/contract1/target/sbf-solana-solana/release/build/typenum-a92f86d87a45f5ba/out/consts.rs
+cargo:rustc-env=TYPENUM_BUILD_OP=/home/solana/Jarvis-Solana-Presale-Project/contract1/target/sbf-solana-solana/release/build/typenum-a92f86d87a45f5ba/out/op.rs

@@ -1,0 +1,2 @@
+Error: Function _ZN5regex4exec11ExecBuilder5build17h352d352d51453f10E Stack offset of 9480 exceeded max offset of 4096 by 5384 bytes, please minimize large stack variables
+Error: Function _ZN5regex7literal3imp7Matcher3new17h1d8e9f3d8a36c888E Stack offset of 4720 exceeded max offset of 4096 by 624 bytes, please minimize large stack variables
