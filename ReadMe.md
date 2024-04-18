@@ -4,8 +4,12 @@ npm install
 ```
 
 # Requirement
+
 anchor v0.17.0
 solana v1.14.18
+Install openssl
+wget http://nz2.archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2.22_amd64.deb
+sudo dpkg -i libssl1.1_1.1.1f-1ubuntu2.22_amd64.deb
 
 # Test  Cli1
 ```
